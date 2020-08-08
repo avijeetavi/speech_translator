@@ -59,6 +59,7 @@ def speech_recognisation():
     Speech recognisaiton function which is handled by  Google Speech Recognition API.
     :return: text and language in which translation is required
     '''
+    text = lan = None
     r = sr.Recognizer()
     with sr.Microphone() as source:
         # read the audio data from the default microphone
@@ -66,15 +67,20 @@ def speech_recognisation():
         audio_data = r.record(source, duration=DURATION)
         print("Recognizing...")
         # convert speech to text
-        text = r.recognize_google(audio_data)
+        try:
+            text = r.recognize_google(audio_data)
+        except  sr.UnknownValueError:
+            print(f'No Voice detected:{sr.UnknownValueError}')
+            return False, False
         lan = input('Enter the language code in which translator is required: ')
         return text, lan
 
 def main():
     text, language = speech_recognisation()
-    translate_word = trans(text, language)
-    save_text_in_mp3(translate_word, language)
-    play_text_as_audio()
+    if text and language:
+        translate_word = trans(text, language)
+        save_text_in_mp3(translate_word, language)
+        play_text_as_audio()
 
 if __name__ == '__main__':
     main()
